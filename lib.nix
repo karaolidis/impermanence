@@ -27,17 +27,17 @@ let
     );
 
   # ["home" "user" ".screenrc"] -> "home/user/.screenrc"
-  dirListToPath = dirList: (concatStringsSep "/" dirList);
+  joinPathComponents = components: (concatStringsSep "/" components);
 
   # ["/home/user/" "/.screenrc"] -> "/home/user/.screenrc"
-  concatPaths = paths:
+  mergePaths = paths:
     let
       prefix = optionalString (hasPrefix "/" (head paths)) "/";
-      path = dirListToPath (splitPath paths);
+      path = joinPathComponents (splitPath paths);
     in
     prefix + path;
 
-
+  # "/home/user/.screenrc" -> ["/home", "/home/user"]
   parentsOf = path:
     let
       prefix = optionalString (hasPrefix "/" path) "/";
@@ -47,7 +47,7 @@ let
     foldl'
       (state: item:
         state ++ [
-          (concatPaths [
+          (mergePaths [
             (if state != [ ] then last state else prefix)
             item
           ])
@@ -60,6 +60,7 @@ let
       [ "." ] [ "" ]
       (sanitizeDerivationName (removePrefix "/" name));
 
+  # ["a", "b", "a"] -> ["a"]
   duplicates = list:
     let
       result =
@@ -82,8 +83,8 @@ in
 {
   inherit
     splitPath
-    dirListToPath
-    concatPaths
+    joinPathComponents
+    mergePaths
     parentsOf
     sanitizeName
     duplicates

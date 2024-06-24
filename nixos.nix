@@ -35,7 +35,7 @@ let
     ;
 
   inherit (pkgs.callPackage ./lib.nix { })
-    concatPaths
+    mergePaths
     duplicates
     parentsOf
     ;
@@ -51,9 +51,9 @@ let
 
   # Create fileSystems bind mount entry.
   mkBindMountNameValuePair = { dirPath, persistentStoragePath, hideMount, ... }: {
-    name = concatPaths [ "/" dirPath ];
+    name = mergePaths [ "/" dirPath ];
     value = {
-      device = concatPaths [ persistentStoragePath dirPath ];
+      device = mergePaths [ persistentStoragePath dirPath ];
       noCheck = true;
       options = [ "bind" "X-fstrim.notrim" ]
         ++ optional hideMount "x-gvfs-hide";
@@ -261,11 +261,11 @@ in
                             {
                               parentDirectory = rec {
                                 directory = dirOf config.file;
-                                dirPath = concatPaths [ config.home directory ];
+                                dirPath = mergePaths [ config.home directory ];
                                 inherit (config) persistentStoragePath home;
                                 defaultPerms = userDefaultPerms;
                               };
-                              filePath = concatPaths [ config.home config.file ];
+                              filePath = mergePaths [ config.home config.file ];
                             };
                           userFile = submodule [
                             commonOpts
@@ -280,7 +280,7 @@ in
                             { config, ... }:
                             {
                               defaultPerms = mkDefault userDefaultPerms;
-                              dirPath = concatPaths [ config.home config.directory ];
+                              dirPath = mergePaths [ config.home config.directory ];
                             };
                           userDir = submodule ([
                             commonOpts
@@ -477,7 +477,7 @@ in
       let
         mkPersistFileService = { filePath, persistentStoragePath, enableDebugging, ... }:
           let
-            targetFile = escapeShellArg (concatPaths [ persistentStoragePath filePath ]);
+            targetFile = escapeShellArg (mergePaths [ persistentStoragePath filePath ]);
             mountPoint = escapeShellArg filePath;
           in
           {
@@ -606,7 +606,7 @@ in
                   directory = path;
                   dirPath =
                     if dir.home != null then
-                      concatPaths [ dir.home path ]
+                      mergePaths [ dir.home path ]
                     else
                       path;
                   inherit (dir) persistentStoragePath home enableDebugging;
@@ -640,7 +640,7 @@ in
         mkPersistFile = { filePath, persistentStoragePath, enableDebugging, ... }:
           let
             mountPoint = filePath;
-            targetFile = concatPaths [ persistentStoragePath filePath ];
+            targetFile = mergePaths [ persistentStoragePath filePath ];
             args = escapeShellArgs [
               mountPoint
               targetFile
