@@ -35,9 +35,11 @@ elif mount | grep -F "$mountPoint"' ' >/dev/null && ! mount | grep -F "$mountPoi
 elif [[ -e "$mountPoint" ]]; then
     echo "A file already exists at $mountPoint!" >&2
     exit 1
-elif [[ -e "$targetFile" ]]; then
-    touch "$mountPoint"
-    mount -o bind "$targetFile" "$mountPoint"
-else
-    ln -s "$targetFile" "$mountPoint"
 fi
+
+if [[ ! -e "$targetFile" ]]; then
+    touch "$targetFile"
+fi
+
+touch "$mountPoint"
+mount -o bind "$targetFile" "$mountPoint"

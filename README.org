@@ -311,9 +311,6 @@
         exist. Available options are ~user~, ~group~ and ~mode~. See their
         definition in ~directories~ above.
 
-      If the file exists in persistent storage, it will be bind
-      mounted to the target path; otherwise it will be symlinked.
-
     - ~users.talyz~ handles files and directories in ~talyz~'s home
       directory
 
